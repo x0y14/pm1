@@ -156,29 +156,24 @@ func TestLoadStorageWithEncryptionFromFile(t *testing.T) {
 	t.Logf("encrypted = %v\n", encryptedStorageBytes)
 
 	// write file
-	outputPath := "./secure/storage.enc"
-	if IsExistFile(outputPath) {
-		// file exist
-		f, err := os.Open(outputPath)
-		if err != nil {
-			t.Errorf("failed to open file: %s: %v", outputPath, err)
-		}
-		_, err = f.Write(encryptedStorageBytes)
-		if err != nil {
-			t.Errorf("failed to write encrypted data into(opened): %s: %v", outputPath, err)
-		}
-	} else {
-		// file not exist
-		err = os.WriteFile(outputPath, encryptedStorageBytes, 0755)
-		if err != nil {
-			t.Errorf("failed to write encrypted data into(created): %s: %v", outputPath, err)
-		}
+	//outputPath := "./secure/storage.enc"
+	temp, err := os.CreateTemp("", "")
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(temp.Name())
+
+	if err != nil {
+		t.Errorf("failed to create temp file: %v", err)
+	}
+	_, err = temp.Write(encryptedStorageBytes)
+	if err != nil {
+		t.Errorf("failed to write encrypted data into(opened): %s: %v", temp.Name(), err)
 	}
 
 	// read file
-	readEncryptedStorageBytes, err := os.ReadFile(outputPath)
+	readEncryptedStorageBytes, err := os.ReadFile(temp.Name())
 	if err != nil {
-		t.Errorf("failed to read encrypted data from: %s: %v", outputPath, err)
+		t.Errorf("failed to read encrypted data from: %s: %v", temp.Name(), err)
 	}
 
 	// decryption
@@ -198,9 +193,4 @@ func TestLoadStorageWithEncryptionFromFile(t *testing.T) {
 		t.Errorf("restored storage mismatch (-want +got):\n%s", diff)
 	}
 
-	err = os.Remove(outputPath)
-	if err != nil {
-		t.Errorf("failed to delete file: %s: %v", outputPath, err)
-	}
-	t.Logf("file deleted: %s", outputPath)
 }
