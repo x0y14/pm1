@@ -2,7 +2,7 @@ name: ci
 on: [ push ]
 jobs:
   CI:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
 
@@ -13,6 +13,6 @@ jobs:
 
       - name: Test
         run: |
-          sudo apt-get update
-          sudo apt-get install libgtk-4-dev
+          sudo apt update
+          sudo apt install libgtk-4-dev
           go test -v ./...
