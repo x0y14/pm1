@@ -24,3 +24,13 @@ func IsExistFile(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
+
+func CalcMinimumWordLength(max, countOfWords int) int {
+	// 区切りの数
+	countOfSep := countOfWords - 1
+	// 必要な各単語の合計の長さ
+	wordsTotalLength := max - countOfSep
+	// 各単語の最小の長さ
+	wordLength := wordsTotalLength / countOfWords
+	return wordLength
+}
