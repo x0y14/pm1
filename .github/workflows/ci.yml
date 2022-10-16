@@ -12,6 +12,7 @@ jobs:
           go-version: 1.19
 
       - name: Test
-        run: | 
+        run: |
+          sudo apt update
           sudo apt install libgtk-4-dev
           go test -v ./...
