@@ -13,6 +13,12 @@ type PasswordGenerator struct {
 	words map[int][]string
 }
 
+func NewPasswordGenerator() *PasswordGenerator {
+	return &PasswordGenerator{
+		words: map[int][]string{},
+	}
+}
+
 func (p *PasswordGenerator) Init() error {
 	rand.Seed(time.Now().UnixNano())
 
@@ -25,8 +31,6 @@ func (p *PasswordGenerator) Init() error {
 }
 
 func (p *PasswordGenerator) loadEnglishWordsFromTxt(path string) error {
-	p.words = map[int][]string{}
-
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
