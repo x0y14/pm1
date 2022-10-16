@@ -4,6 +4,8 @@ type PasswordOption struct {
 	Type PasswordType
 
 	// EasyToRemember
+	AllowUpper   bool   // 大文字を許可するか
+	MinLength    int    //　パスワードの最小の長さ
 	MaxLength    int    // パスワードの最大の長さ
 	CountOfWords int    // 単語数
 	Separators   []rune // 単語の区切りに使用する文字
@@ -42,4 +44,30 @@ func NewRandomOption(length int, useNumber, useSymbol bool, allowedSymbols []run
 	}
 }
 
-func NewEasyToRememberOption() {}
+func NewEasyToRememberOption(allowUpper bool, minLength, maxLength, countOfWords int, sep []rune) *PasswordOption {
+	if minLength < 15 {
+		minLength = 15
+	}
+	if maxLength < 15 {
+		maxLength = 15
+	}
+	if maxLength < minLength {
+		maxLength = minLength
+	}
+
+	if countOfWords < 3 {
+		countOfWords = 3
+	}
+
+	if sep == nil {
+		sep = SupportedSymbols
+	}
+
+	return &PasswordOption{
+		Type:         EasyToRemember,
+		AllowUpper:   allowUpper,
+		MaxLength:    maxLength,
+		CountOfWords: countOfWords,
+		Separators:   sep,
+	}
+}
