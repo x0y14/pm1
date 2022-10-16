@@ -96,3 +96,61 @@ func TestPasswordGenerator_GeneratePassword_Random(t *testing.T) {
 		})
 	}
 }
+
+func TestPasswordGenerator_GeneratePassword_EasyToRemember(t *testing.T) {
+	gen := NewPasswordGenerator()
+	err := gen.Init()
+	if err != nil {
+		t.Errorf("failed to initialize generator: %v", err)
+	}
+
+	tests := []struct {
+		name         string
+		allowUpper   bool
+		minLength    int
+		maxLength    int
+		countOfWords int
+		seps         []rune
+	}{
+		{
+			"plus, 20 <= n <= 30",
+			true,
+			20,
+			30,
+			5,
+			[]rune{'+'},
+		},
+		{
+			"plus or hyphen, 30 <= n <= 50",
+			true,
+			30,
+			50,
+			7,
+			[]rune{'+', '-'},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// set up
+			gen := NewPasswordGenerator()
+			err = gen.Init()
+			if err != nil {
+				t.Errorf("failed to initialize password generator: %v", err)
+			}
+
+			// option
+			opt := NewEasyToRememberOption(tt.allowUpper, tt.minLength, tt.maxLength, tt.countOfWords, tt.seps)
+
+			password, err := gen.GeneratePassword(opt)
+			if err != nil {
+				t.Errorf("failed to generate password: %v", err)
+			}
+
+			assert.True(t, tt.minLength <= len(password))
+			assert.True(t, len(password) <= tt.maxLength)
+			t.Logf("generated: %s(%d)", password, len(password))
+
+		})
+	}
+}

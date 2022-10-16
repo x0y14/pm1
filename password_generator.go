@@ -44,6 +44,7 @@ func (p *PasswordGenerator) loadEnglishWordsFromTxt(path string) error {
 		if !ok {
 			p.words[len(word)] = []string{}
 		}
+		word = strings.ReplaceAll(word, "\r", "")
 		p.words[len(word)] = append(p.words[len(word)], word)
 	}
 
@@ -73,6 +74,52 @@ func (p *PasswordGenerator) GeneratePassword(opt *PasswordOption) (string, error
 		password := ""
 		for i := 0; i < opt.Length; i++ {
 			password += string(runesUsing[rand.Intn(len(runesUsing))])
+		}
+		return password, nil
+	case EasyToRemember:
+		minimumWordLength := CalcMinimumWordLength(opt.MaxLength, opt.CountOfWords)
+		var password string
+	genLoop:
+		for {
+			password = ""
+			for i := 0; i < opt.CountOfWords; i++ {
+				// 単語取り出し, 存在しない長さを引き当てた場合のためにリトライできるように
+				word := ""
+			wordChoiceLoop:
+				for {
+					wordLength := minimumWordLength + rand.Intn(minimumWordLength)
+					words, ok := p.words[wordLength]
+					if !ok {
+						continue
+					}
+					word = words[rand.Intn(len(words))]
+					break wordChoiceLoop
+				}
+				if opt.AllowUpper {
+					switch rand.Intn(10) {
+					case 0, 1:
+						// upper
+						password += strings.ToUpper(word)
+					case 2, 3:
+						// HeadUpper
+						password += strings.ToUpper(string(word[0])) + word[1:]
+					default:
+						password += word
+					}
+
+				} else {
+					password += word
+				}
+				if i != opt.CountOfWords-1 {
+					// is not last, add sep
+					sep := opt.Separators[rand.Intn(len(opt.Separators))]
+					password += string(sep)
+				}
+			}
+			// ループ後、要件に合致していれば終了、そうでなければやり直し
+			if opt.MinLength <= len(password) && len(password) <= opt.MaxLength {
+				break genLoop
+			}
 		}
 		return password, nil
 	}
