@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 )
 
@@ -25,13 +26,11 @@ func Pkcs7Pad(data []byte) []byte {
 }
 
 func Encrypt(data []byte, key string) (encrypted, iv []byte, err error) {
-	keyHex := make([]byte, hex.EncodedLen(len(key)))
-	hex.Encode(keyHex, []byte(key))
+	keyHashed := sha256.Sum256([]byte(key))
 
 	dataHex := make([]byte, hex.EncodedLen(len(data)))
 	hex.Encode(dataHex, data)
 
-	paddedKey := Pkcs7Pad(keyHex)
 	paddedData := Pkcs7Pad(dataHex)
 
 	encrypted = make([]byte, len(paddedData))
@@ -41,7 +40,7 @@ func Encrypt(data []byte, key string) (encrypted, iv []byte, err error) {
 		return nil, nil, err
 	}
 
-	block, err := aes.NewCipher(paddedKey)
+	block, err := aes.NewCipher(keyHashed[:])
 	if err != nil {
 		return nil, nil, err
 	}
@@ -59,11 +58,9 @@ func Pkcs7UnPad(data []byte) []byte {
 }
 
 func Decrypt(encrypted []byte, key string, iv []byte) ([]byte, error) {
-	keyHex := make([]byte, hex.EncodedLen(len(key)))
-	hex.Encode(keyHex, []byte(key))
-	paddedKey := Pkcs7Pad(keyHex)
+	keyHashed := sha256.Sum256([]byte(key))
 
-	block, err := aes.NewCipher(paddedKey)
+	block, err := aes.NewCipher(keyHashed[:])
 	if err != nil {
 		return nil, err
 	}
