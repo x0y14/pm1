@@ -6,7 +6,7 @@ import (
 )
 
 func TestPasswordGenerator_GeneratePassword_Random(t *testing.T) {
-	gen := PasswordGenerator{}
+	gen := NewPasswordGenerator()
 	err := gen.Init()
 	if err != nil {
 		t.Fatalf("failed to initialize generator: %v", err)
