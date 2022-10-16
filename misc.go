@@ -1,5 +1,7 @@
 package pm1
 
+import "os"
+
 func IsContain(r rune, runes []rune) bool {
 	for _, rr := range runes {
 		if rr == r {
@@ -16,4 +18,9 @@ func IsWithInRange(s string, ran []rune) bool {
 		}
 	}
 	return true
+}
+
+func IsExistFile(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
