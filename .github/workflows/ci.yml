@@ -2,6 +2,7 @@ name: ci
 on: [ push ]
 jobs:
   CI:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
