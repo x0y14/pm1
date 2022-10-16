@@ -1,13 +1,15 @@
 package pm1
 
 type PasswordOption struct {
-	PassType PasswordType
-	Length   int // 生成するパスワードの長さ
+	Type PasswordType
 
 	// EasyToRemember
-	Separator string // 単語の区切りに使用する文字列
+	MaxLength    int    // パスワードの最大の長さ
+	CountOfWords int    // 単語数
+	Separators   []rune // 単語の区切りに使用する文字
 
 	// Random
+	Length         int    // 生成するパスワードの長さ
 	UseNumber      bool   // 数字を使用するか
 	UseSymbol      bool   // 記号を使用するか
 	AllowedSymbols []rune // 記号を使用する場合、使用してもよい記号たち
@@ -32,10 +34,12 @@ func NewRandomOption(length int, useNumber, useSymbol bool, allowedSymbols []run
 	}
 
 	return &PasswordOption{
-		PassType:       Random,
+		Type:           Random,
 		Length:         length,
 		UseNumber:      useNumber,
 		UseSymbol:      useSymbol,
 		AllowedSymbols: allowed,
 	}
 }
+
+func NewEasyToRememberOption() {}

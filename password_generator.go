@@ -54,7 +54,7 @@ var (
 )
 
 func (p *PasswordGenerator) GeneratePassword(opt *PasswordOption) (string, error) {
-	switch opt.PassType {
+	switch opt.Type {
 	case Random:
 		var runesUsing []rune
 		runesUsing = append(runesUsing, LowerAlphabets...)
