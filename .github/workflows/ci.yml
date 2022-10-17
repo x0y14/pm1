@@ -1,5 +1,7 @@
 name: ci
 on: [ push ]
+env:
+  ASSUME_NO_MOVING_GC_UNSAFE_RISK_IT_WITH: go1.19
 jobs:
   CI:
     runs-on: ubuntu-22.04
