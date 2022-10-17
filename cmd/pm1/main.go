@@ -8,12 +8,5 @@ import (
 )
 
 func main() {
-	app := gtk.NewApplication("dev.x0y14.pm1", gio.ApplicationFlagsNone)
-	app.ConnectActivate(func() {
-		pm1.Activate(app)
-	})
-
-	if code := app.Run(os.Args); code > 0 {
-		os.Exit(code)
-	}
+	log.Printf("hello")
 }
