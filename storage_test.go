@@ -156,7 +156,6 @@ func TestLoadStorageWithEncryptionFromFile(t *testing.T) {
 	t.Logf("encrypted = %v\n", encryptedStorageBytes)
 
 	// write file
-	//outputPath := "./secure/storage.enc"
 	temp, err := os.CreateTemp("", "")
 	defer func(name string) {
 		_ = os.Remove(name)
