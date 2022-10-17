@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  pm1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sleep infinity
