@@ -1,7 +1,5 @@
 name: ci
 on: [ push ]
-env:
-  ASSUME_NO_MOVING_GC_UNSAFE_RISK_IT_WITH: go1.19
 jobs:
   CI:
     runs-on: ubuntu-22.04
@@ -15,6 +13,4 @@ jobs:
 
       - name: Test
         run: |
-          sudo apt update
-          sudo apt install libgtk-4-dev
           go test -v ./...
