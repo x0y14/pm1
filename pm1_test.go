@@ -40,7 +40,7 @@ func TestLoad(t *testing.T) {
 
 	// encryption
 	masterPassword := "im master password"
-	encryptedStorageBytes, iv, err := Encrypt(storageBytes, masterPassword)
+	encryptedStorageBytes, iv, err := Encrypt(storageBytes, Sha256Hashing(masterPassword))
 	if err != nil {
 		t.Errorf("failed to encrypt storage: %v", err)
 	}
@@ -73,7 +73,7 @@ func TestLoad(t *testing.T) {
 	}
 
 	// decryption
-	decryptedStorageBytes, err := Decrypt(encryptedStorageBytes, masterPassword, iv)
+	decryptedStorageBytes, err := Decrypt(encryptedStorageBytes, Sha256Hashing(masterPassword), iv)
 	if err != nil {
 		t.Errorf("faield to decrypt storage: %v", err)
 	}

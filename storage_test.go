@@ -86,7 +86,7 @@ func TestLoadStorageWithEncryption(t *testing.T) {
 
 	// encryption
 	masterPassword := "im master password"
-	encryptedStorageBytes, iv, err := Encrypt(storageBytes, masterPassword)
+	encryptedStorageBytes, iv, err := Encrypt(storageBytes, Sha256Hashing(masterPassword))
 	if err != nil {
 		t.Errorf("failed to encrypt storage: %v", err)
 	}
@@ -95,7 +95,7 @@ func TestLoadStorageWithEncryption(t *testing.T) {
 	t.Logf("encrypted = %v\n", encryptedStorageBytes)
 
 	// decryption
-	decryptedStorageBytes, err := Decrypt(encryptedStorageBytes, masterPassword, iv)
+	decryptedStorageBytes, err := Decrypt(encryptedStorageBytes, Sha256Hashing(masterPassword), iv)
 	if err != nil {
 		t.Errorf("faield to decrypt storage: %v", err)
 	}
@@ -147,7 +147,7 @@ func TestLoadStorageWithEncryptionFromFile(t *testing.T) {
 
 	// encryption
 	masterPassword := "im master password"
-	encryptedStorageBytes, iv, err := Encrypt(storageBytes, masterPassword)
+	encryptedStorageBytes, iv, err := Encrypt(storageBytes, Sha256Hashing(masterPassword))
 	if err != nil {
 		t.Errorf("failed to encrypt storage: %v", err)
 	}
@@ -176,7 +176,7 @@ func TestLoadStorageWithEncryptionFromFile(t *testing.T) {
 	}
 
 	// decryption
-	decryptedStorageBytes, err := Decrypt(readEncryptedStorageBytes, masterPassword, iv)
+	decryptedStorageBytes, err := Decrypt(readEncryptedStorageBytes, Sha256Hashing(masterPassword), iv)
 	if err != nil {
 		t.Errorf("faield to decrypt storage: %v", err)
 	}

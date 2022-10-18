@@ -25,9 +25,7 @@ func Pkcs7Pad(data []byte) []byte {
 	return append(data, trail...)
 }
 
-func Encrypt(data []byte, key string) (encrypted, iv []byte, err error) {
-	keyHashed := sha256.Sum256([]byte(key))
-
+func Encrypt(data []byte, hashedKey []byte) (encrypted, iv []byte, err error) {
 	dataHex := make([]byte, hex.EncodedLen(len(data)))
 	hex.Encode(dataHex, data)
 
@@ -40,7 +38,7 @@ func Encrypt(data []byte, key string) (encrypted, iv []byte, err error) {
 		return nil, nil, err
 	}
 
-	block, err := aes.NewCipher(keyHashed[:])
+	block, err := aes.NewCipher(hashedKey)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,10 +55,8 @@ func Pkcs7UnPad(data []byte) []byte {
 	return data[:dataLength-padLength]
 }
 
-func Decrypt(encrypted []byte, key string, iv []byte) ([]byte, error) {
-	keyHashed := sha256.Sum256([]byte(key))
-
-	block, err := aes.NewCipher(keyHashed[:])
+func Decrypt(encrypted []byte, hashedKey []byte, iv []byte) ([]byte, error) {
+	block, err := aes.NewCipher(hashedKey)
 	if err != nil {
 		return nil, err
 	}
