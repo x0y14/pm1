@@ -12,6 +12,10 @@ const (
 )
 
 func TestGetHashedMasterPassword(t *testing.T) {
+	if testing.Short() {
+		t.Skip("In short mode, this test will be skipped.")
+	}
+
 	err := SetHashedMasterPassword(
 		Sha256Hashing(testMasterPassword),
 		time.Now().Add(2*time.Minute))
@@ -33,6 +37,10 @@ func TestGetHashedMasterPassword(t *testing.T) {
 }
 
 func TestGetHashedMasterPasswordExpired(t *testing.T) {
+	if testing.Short() {
+		t.Skip("In short mode, this test will be skipped.")
+	}
+
 	expiredAt := time.Now().Add(-2 * time.Minute)
 	err := SetHashedMasterPassword(
 		Sha256Hashing(testMasterPassword), expiredAt)
