@@ -77,3 +77,8 @@ func Decrypt(encrypted []byte, key string, iv []byte) ([]byte, error) {
 	}
 	return data, nil
 }
+
+func Sha256Hashing(data string) []byte {
+	hashed := sha256.Sum256([]byte(data))
+	return hashed[:]
+}
