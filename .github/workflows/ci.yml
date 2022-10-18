@@ -2,7 +2,7 @@ name: ci
 on: [ push ]
 jobs:
   CI:
-    runs-on: ubuntu-22.04
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -13,5 +13,4 @@ jobs:
 
       - name: Test
         run: |
-          pass init test
           go test -v ./...
