@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/jessevdk/go-flags"
 	"log"
 	"os"
 
@@ -9,7 +10,13 @@ import (
 )
 
 func main() {
-	p := tea.NewProgram(pm1.NewModel())
+	opts := pm1.Option{}
+	args, err := flags.Parse(&opts)
+	if err != nil {
+		log.Printf("faile to parse flags: %v", err)
+	}
+
+	p := tea.NewProgram(pm1.NewModel(&opts, args))
 	if err := p.Start(); err != nil {
 		log.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
