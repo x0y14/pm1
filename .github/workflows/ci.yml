@@ -2,7 +2,7 @@ name: ci
 on: [ push ]
 jobs:
   CI:
-    runs-on: macos-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
 
@@ -11,9 +11,6 @@ jobs:
         with:
           go-version: 1.19
 
-      - uses: sinoru/actions-setup-keychain@v1.0
-      - run: fastlane match
-
       - name: Test
         run: |
-          go test -v ./...
+          go test -v -short ./...
