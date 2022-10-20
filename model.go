@@ -1,50 +1,59 @@
 package pm1
 
 import (
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"log"
+	"github.com/charmbracelet/lipgloss"
+)
+
+type Seen int
+
+const (
+	Launched Seen = iota
+	WaitingForFinishLoadingEnglishDictionary
+	WaitingForEnteringMasterPassword
+)
+
+var seenTypes = [...]string{
+	Launched:                                 "Launched",
+	WaitingForFinishLoadingEnglishDictionary: "WaitingForFinishLoadingEnglishDictionary",
+	WaitingForEnteringMasterPassword:         "WaitingForEnteringMasterPassword",
+}
+
+func (s Seen) String() string {
+	return seenTypes[s]
+}
+
+type SeenChangeMsg struct {
+	NewSeen Seen
+}
+
+var (
+	spinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
 )
 
 type Model struct {
-	storage   *Storage
-	generator *PasswordGenerator
+	opt       *Option
+	args      []string
+	seen      Seen
+	spinner   spinner.Model
+	isLoading bool
 }
 
-func NewModel(opts *Option, args []string) *Model {
-	log.Printf("options: %v\n", opts)
-	log.Printf("args: %v\n", args)
-	return &Model{
-		storage:   nil,
-		generator: nil,
+func NewModel(opt *Option, args []string) Model {
+	s := spinner.New()
+	s.Style = spinnerStyle
+
+	return Model{
+		opt:       opt,
+		args:      args,
+		seen:      Launched,
+		spinner:   s,
+		isLoading: false,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	const encJsonPath = "secure/enc.json"
-
-	// setup storage
-	// find exported file
-	if IsExistFile(encJsonPath) {
-		//encrypted, iv, err := Load(encJsonPath)
-		//if err != nil {
-		//	log.Fatalf("failed to load: %s: %v", encJsonPath, err)
-		//	return nil
-		//}
-
-	} else {
-		// ファイルがなかったので新しく作る.
-		// vault
-		personalVault := NewVault("personal")
-		m.storage = NewStorage()
-		m.storage.Register(personalVault)
-		// password generator
-		m.generator = NewPasswordGenerator()
-		err := m.generator.Init()
-		if err != nil {
-			log.Fatalf("failed to initialize password generator: %v", err)
-		}
-	}
-
 	return nil
 }
 
@@ -52,14 +61,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "q", "esc", "ctrl+c":
 			return m, tea.Quit
 		}
+	case SeenChangeMsg:
+		m.seen = msg.NewSeen
+		switch m.seen {
+		case WaitingForFinishLoadingEnglishDictionary, WaitingForEnteringMasterPassword:
+			m.isLoading = true
+			return m, spinner.Tick
+		default:
+			m.isLoading = false
+			return m, nil
+		}
+	case spinner.TickMsg:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
 	}
 
 	return m, nil
 }
 
 func (m Model) View() string {
-	return ""
+	var s string
+	if m.isLoading {
+		s += m.spinner.View() + " "
+	}
+	s += "now: " + m.seen.String()
+	return s
 }
