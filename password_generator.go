@@ -4,7 +4,6 @@ import (
 	"math/rand"
 	"os"
 	"strings"
-	"time"
 )
 
 type PasswordGenerator struct {
@@ -20,8 +19,6 @@ func NewPasswordGenerator() *PasswordGenerator {
 }
 
 func (p *PasswordGenerator) Init() error {
-	rand.Seed(time.Now().UnixNano())
-
 	err := p.loadEnglishWordsFromTxt("assets/words_alpha.txt")
 	if err != nil {
 		return err
