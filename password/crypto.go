@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 )
 
 // 参考: https://zenn.dev/yot0201/articles/6046138ec783d2
@@ -49,10 +50,13 @@ func Encrypt(data []byte, hashedKey []byte) (encrypted, iv []byte, err error) {
 	return encrypted, iv, nil
 }
 
-func Pkcs7UnPad(data []byte) []byte {
+func Pkcs7UnPad(data []byte) ([]byte, error) {
 	dataLength := len(data)
 	padLength := int(data[dataLength-1])
-	return data[:dataLength-padLength]
+	if dataLength-padLength <= 0 {
+		return nil, fmt.Errorf("invalid data length: %d", dataLength-padLength)
+	}
+	return data[:dataLength-padLength], nil
 }
 
 func Decrypt(encrypted []byte, hashedKey []byte, iv []byte) ([]byte, error) {
@@ -64,7 +68,10 @@ func Decrypt(encrypted []byte, hashedKey []byte, iv []byte) ([]byte, error) {
 	decrypted := make([]byte, len(encrypted))
 	cbcDecrypter := cipher.NewCBCDecrypter(block, iv)
 	cbcDecrypter.CryptBlocks(decrypted, encrypted)
-	unPaddedHexData := Pkcs7UnPad(decrypted)
+	unPaddedHexData, err := Pkcs7UnPad(decrypted)
+	if err != nil {
+		return nil, err
+	}
 
 	data := make([]byte, hex.DecodedLen(len(unPaddedHexData)))
 	_, err = hex.Decode(data, unPaddedHexData)
