@@ -26,8 +26,9 @@ type View struct {
 	Action func(m Model) Model
 	Render func(m Model) string
 
-	encrypted []byte
-	iv        []byte
+	encrypted    []byte
+	iv           []byte
+	tempHashedMp []byte
 }
 
 // FindingEncJson
@@ -105,14 +106,14 @@ var WaitingForToFinishEnteringMasterPasswordForDecrypt = View{
 		return m
 	},
 	Render: func(m Model) string {
-		return fmt.Sprintf("please entering master password (length: 4 < n)\n%s\n", m.masterPasswordInput.View())
+		return fmt.Sprintf("please entering master password\n%s\n", m.masterPasswordInput.View())
 	},
 }
 
-// CreatingNewStorageAndVault
+// CreatingNewStorageAndVault1
 // 初回起動時に表示されます。
 // マスターパスワードの入力を要求します。
-var CreatingNewStorageAndVault = View{
+var CreatingNewStorageAndVault1 = View{
 	Action: func(m Model) Model {
 		mp := m.masterPasswordInput.Value()
 		// 空白だったら再度入力してもらいます。
@@ -124,6 +125,40 @@ var CreatingNewStorageAndVault = View{
 			m.err = fmt.Errorf("master password entered is too short: at least 5 characters")
 			return m
 		}
+		// 入力クリア
+		m.masterPasswordInput.Reset()
+
+		m.MainView = CreatingNewStorageAndVault2
+		m.MainView.tempHashedMp = password.Sha256Hashing(mp)
+		m.err = nil
+		return m
+	},
+	Render: func(m Model) string {
+		return fmt.Sprintf("please enter master password (length: 4 < n)\n%s\n", m.masterPasswordInput.View())
+	},
+}
+
+// 循環参照エラーを避けるため、代入を遅延します。
+var creating1 View
+
+func init() {
+	creating1 = CreatingNewStorageAndVault1
+}
+
+// CreatingNewStorageAndVault2
+// 再度マスターパスワードの入力を要求します。
+// 一致しなかった場合は1に戻ります
+var CreatingNewStorageAndVault2 = View{
+	Action: func(m Model) Model {
+		mp := m.masterPasswordInput.Value()
+		if string(password.Sha256Hashing(mp)) != string(m.MainView.tempHashedMp) {
+			m.err = fmt.Errorf("master passwords dose not match")
+			m.masterPasswordInput.Reset()
+			m.MainView = creating1
+			m.MainView.tempHashedMp = nil
+			return m
+		}
+
 		// 入力クリア
 		m.masterPasswordInput.Reset()
 		m.masterPasswordInput.Blur()
@@ -159,7 +194,7 @@ var CreatingNewStorageAndVault = View{
 		return m
 	},
 	Render: func(m Model) string {
-		return fmt.Sprintf("please entering master password (length: 4 < n)\n%s\n", m.masterPasswordInput.View())
+		return fmt.Sprintf("please re-enter master password\n%s\n", m.masterPasswordInput.View())
 	},
 }
 

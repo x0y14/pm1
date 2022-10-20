@@ -60,7 +60,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case EventMsg:
 		switch msg.EventType {
 		case EncJsonNotFound:
-			m.MainView = CreatingNewStorageAndVault
+			m.MainView = CreatingNewStorageAndVault1
 			m.masterPasswordInput.Focus()
 		case EncJsonFound:
 			m.MainView = CheckEncJson
