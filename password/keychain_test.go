@@ -1,4 +1,4 @@
-package pm1
+package password
 
 import (
 	"fmt"

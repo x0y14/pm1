@@ -1,4 +1,4 @@
-package pm1
+package password
 
 import (
 	"github.com/google/go-cmp/cmp"
@@ -32,17 +32,17 @@ func TestLoad(t *testing.T) {
 	// register vault onto testStorage
 	testStorage.Register(testVault)
 
-	// dump storage
+	// dump Storage
 	storageBytes, err := DumpStorage(testStorage)
 	if err != nil {
-		t.Errorf("failed to dump storage: %v", err)
+		t.Errorf("failed to dump Storage: %v", err)
 	}
 
 	// encryption
 	masterPassword := "im master password"
 	encryptedStorageBytes, iv, err := Encrypt(storageBytes, Sha256Hashing(masterPassword))
 	if err != nil {
-		t.Errorf("failed to encrypt storage: %v", err)
+		t.Errorf("failed to encrypt Storage: %v", err)
 	}
 
 	t.Logf("iv = %v\n", iv)
@@ -75,17 +75,17 @@ func TestLoad(t *testing.T) {
 	// decryption
 	decryptedStorageBytes, err := Decrypt(encryptedStorageBytes, Sha256Hashing(masterPassword), iv)
 	if err != nil {
-		t.Errorf("faield to decrypt storage: %v", err)
+		t.Errorf("faield to decrypt Storage: %v", err)
 	}
 
-	// restore storage from bytes
+	// restore Storage from bytes
 	restoredTestStorage, err := LoadStorage(decryptedStorageBytes)
 	if err != nil {
-		t.Errorf("failed to restore storage: %v", err)
+		t.Errorf("failed to restore Storage: %v", err)
 	}
 
 	// check diff
 	if diff := cmp.Diff(testStorage, restoredTestStorage); diff != "" {
-		t.Errorf("restored storage mismatch (-want +got):\n%s", diff)
+		t.Errorf("restored Storage mismatch (-want +got):\n%s", diff)
 	}
 }

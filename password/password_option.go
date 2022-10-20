@@ -1,7 +1,7 @@
-package pm1
+package password
 
-type PasswordOption struct {
-	Type PasswordType
+type Option struct {
+	Type Type
 
 	// EasyToRemember
 	AllowUpper   bool   // 大文字を許可するか
@@ -26,7 +26,7 @@ func isSupportedSymbol(symbol rune) bool {
 	return false
 }
 
-func NewRandomOption(length int, useNumber, useSymbol bool, allowedSymbols []rune) *PasswordOption {
+func NewRandomOption(length int, useNumber, useSymbol bool, allowedSymbols []rune) *Option {
 	var allowed []rune
 	// 許可された記号から対応しているもののみを取り出す
 	for _, allowedSymbol := range allowedSymbols {
@@ -35,7 +35,7 @@ func NewRandomOption(length int, useNumber, useSymbol bool, allowedSymbols []run
 		}
 	}
 
-	return &PasswordOption{
+	return &Option{
 		Type:           Random,
 		Length:         length,
 		UseNumber:      useNumber,
@@ -44,7 +44,7 @@ func NewRandomOption(length int, useNumber, useSymbol bool, allowedSymbols []run
 	}
 }
 
-func NewEasyToRememberOption(allowUpper bool, minLength, maxLength, countOfWords int, sep []rune) *PasswordOption {
+func NewEasyToRememberOption(allowUpper bool, minLength, maxLength, countOfWords int, sep []rune) *Option {
 	if minLength < 15 {
 		minLength = 15
 	}
@@ -63,7 +63,7 @@ func NewEasyToRememberOption(allowUpper bool, minLength, maxLength, countOfWords
 		sep = SupportedSymbols
 	}
 
-	return &PasswordOption{
+	return &Option{
 		Type:         EasyToRemember,
 		AllowUpper:   allowUpper,
 		MaxLength:    maxLength,

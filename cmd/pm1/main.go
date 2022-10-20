@@ -12,30 +12,24 @@ import (
 	"github.com/x0y14/pm1"
 )
 
+const (
+	exportPath = "secure/enc.json"
+)
+
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	opt := pm1.Option{}
 	args, err := flags.Parse(&opt)
 	if err != nil {
 		log.Printf("faile to parse flags: %v", err)
 	}
 
-	rand.Seed(time.Now().UTC().UnixNano())
+	model := pm1.NewModel(&opt, args)
+	p := tea.NewProgram(model)
 
-	p := tea.NewProgram(pm1.NewModel(&opt, args))
-
-	// Simulate activity
-	go func() {
-		for {
-			time.Sleep(2 * time.Second)
-			p.Send(pm1.SeenChangeMsg{NewSeen: pm1.WaitingForFinishLoadingEnglishDictionary})
-			time.Sleep(2 * time.Second)
-			p.Send(pm1.SeenChangeMsg{NewSeen: pm1.WaitingForEnteringMasterPassword})
-			time.Sleep(2 * time.Second)
-			p.Send(pm1.SeenChangeMsg{NewSeen: pm1.Launched})
-		}
-	}()
-
-	if _, err := p.StartReturningModel(); err != nil {
+	_, err = p.StartReturningModel()
+	if err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}

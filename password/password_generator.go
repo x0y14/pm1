@@ -1,4 +1,4 @@
-package pm1
+package password
 
 import (
 	"math/rand"
@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-type PasswordGenerator struct {
+type Generator struct {
 	// alphabet english words
 	// 文字の長さごとに配列を分ける
 	words map[int][]string
 }
 
-func NewPasswordGenerator() *PasswordGenerator {
-	return &PasswordGenerator{
+func NewPasswordGenerator() *Generator {
+	return &Generator{
 		words: map[int][]string{},
 	}
 }
 
-func (p *PasswordGenerator) Init() error {
-	err := p.loadEnglishWordsFromTxt("assets/words_alpha.txt")
+func (p *Generator) Init() error {
+	err := p.loadEnglishWordsFromTxt("../assets/words_alpha.txt")
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (p *PasswordGenerator) Init() error {
 	return nil
 }
 
-func (p *PasswordGenerator) loadEnglishWordsFromTxt(path string) error {
+func (p *Generator) loadEnglishWordsFromTxt(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ var (
 	SupportedSymbols = []rune{'!', '@', '#', '$', '%', '^', '&', '*', '-', '+', '|', '~', '?', '='}
 )
 
-func (p *PasswordGenerator) GeneratePassword(opt *PasswordOption) (string, error) {
+func (p *Generator) GeneratePassword(opt *Option) (string, error) {
 	switch opt.Type {
 	case Random:
 		var runesUsing []rune
