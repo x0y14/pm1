@@ -9,6 +9,7 @@ import (
 type Model struct {
 	MainView  View
 	textInput textinput.Model
+	err       error
 }
 
 func InitialModel(opt *Option, args []string) Model {
@@ -21,7 +22,6 @@ func InitialModel(opt *Option, args []string) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	// call action of WaitingForToFinishLoadingStorage
 	return func() tea.Msg {
 		time.Sleep(time.Second * 2)
 		return EventMsg{EventType: EncJsonNotFound}
@@ -43,8 +43,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case EncJsonNotFound:
 			m.textInput.Focus()
 			m.MainView = WaitingForToFinishEnteringMasterPassword
-			time.Sleep(time.Second * 2)
-			m.MainView = Success
 		case EncJsonFound:
 			m.MainView = WaitingForToFinishLoadingStorage
 		}
@@ -52,11 +50,4 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.textInput, cmd = m.textInput.Update(msg)
 	return m, cmd
-}
-
-func (m Model) View() string {
-	var s string
-	s += m.MainView.Render(m)
-	s += "\n"
-	return s
 }
