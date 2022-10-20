@@ -9,7 +9,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/x0y14/pm1"
+	"github.com/x0y14/pm1/cli"
 )
 
 const (
@@ -19,13 +19,13 @@ const (
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	opt := pm1.Option{}
+	opt := cli.Option{}
 	args, err := flags.Parse(&opt)
 	if err != nil {
 		log.Printf("faile to parse flags: %v", err)
 	}
 
-	model := pm1.NewModel(&opt, args)
+	model := cli.InitialModel(&opt, args)
 	p := tea.NewProgram(model)
 
 	_, err = p.StartReturningModel()
