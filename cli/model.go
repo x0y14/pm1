@@ -3,27 +3,46 @@ package cli
 import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"time"
+	"github.com/x0y14/pm1/password"
+)
+
+const (
+	// exportPath
+	// 暗号化されたストレージバイナリデータと、IVを記したjsonファイルの設置場所
+	exportPath = "secure/enc.json"
 )
 
 type Model struct {
-	MainView  View
-	textInput textinput.Model
-	err       error
+	err      error
+	MainView View
+
+	textInput           textinput.Model
+	masterPasswordInput textinput.Model
+
+	storage *password.Storage
 }
 
 func InitialModel(opt *Option, args []string) Model {
 	ti := textinput.New()
 	ti.Prompt = "> "
+
+	mi := textinput.New()
+	mi.Prompt = "> "
+	mi.EchoMode = textinput.EchoPassword
+	mi.Placeholder = "master password"
+
 	return Model{
-		MainView:  WaitingForToFinishLoadingStorage,
-		textInput: ti,
+		MainView:            FindingEncJson,
+		textInput:           ti,
+		masterPasswordInput: mi,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
 	return func() tea.Msg {
-		time.Sleep(time.Second * 2)
+		if password.IsExistFile(exportPath) {
+			return EventMsg{EventType: EncJsonFound}
+		}
 		return EventMsg{EventType: EncJsonNotFound}
 	}
 }
@@ -41,13 +60,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case EventMsg:
 		switch msg.EventType {
 		case EncJsonNotFound:
-			m.textInput.Focus()
-			m.MainView = WaitingForToFinishEnteringMasterPassword
+			m.MainView = CreatingNewStorageAndVault
+			m.masterPasswordInput.Focus()
 		case EncJsonFound:
-			m.MainView = WaitingForToFinishLoadingStorage
+			m.MainView = CheckEncJson
+			m = m.MainView.Action(m)
 		}
 	}
 
-	m.textInput, cmd = m.textInput.Update(msg)
+	if m.textInput.Focused() {
+		m.textInput, cmd = m.textInput.Update(msg)
+		return m, cmd
+	}
+	if m.masterPasswordInput.Focused() {
+		m.masterPasswordInput, cmd = m.masterPasswordInput.Update(msg)
+		return m, cmd
+	}
+
 	return m, cmd
 }
