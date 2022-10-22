@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/x0y14/pm1/command"
 	"github.com/x0y14/pm1/password"
 )
 
@@ -12,17 +13,29 @@ const (
 	exportPath = "secure/enc.json"
 )
 
+//type DoActionMsg struct{}
+//
+//func listeningDoActionMsg(ch chan DoActionMsg) tea.Cmd {
+//	return func() tea.Msg {
+//		return <-ch
+//	}
+//}
+
 type Model struct {
 	err      error
 	MainView View
+	cmd      *command.Command
 
+	//doActionMsgCh       chan DoActionMsg
 	textInput           textinput.Model
 	masterPasswordInput textinput.Model
 
 	storage *password.Storage
 }
 
-func InitialModel(opt *Option, args []string) Model {
+func InitialModel(cmd *command.Command) Model {
+	//doActionMsgCh := make(chan DoActionMsg)
+
 	ti := textinput.New()
 	ti.Prompt = "> "
 
@@ -32,19 +45,24 @@ func InitialModel(opt *Option, args []string) Model {
 	mi.Placeholder = "master password"
 
 	return Model{
-		MainView:            FindingEncJson,
+		cmd:      cmd,
+		MainView: FindingEncJson,
+		//doActionMsgCh:       doActionMsgCh,
 		textInput:           ti,
 		masterPasswordInput: mi,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return func() tea.Msg {
-		if password.IsExistFile(exportPath) {
-			return EventMsg{EventType: EncJsonFound}
-		}
-		return EventMsg{EventType: EncJsonNotFound}
-	}
+	return tea.Batch(
+		func() tea.Msg {
+			if password.IsExistFile(exportPath) {
+				return EventMsg{EventType: EncJsonFound}
+			}
+			return EventMsg{EventType: EncJsonNotFound}
+		},
+		//listeningDoActionMsg(m.doActionMsgCh),
+	)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -66,6 +84,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.MainView = CheckEncJson
 			m = m.MainView.Action(m)
 		}
+		//case DoActionMsg:
+		//	m = m.MainView.Action(m)
 	}
 
 	if m.textInput.Focused() {

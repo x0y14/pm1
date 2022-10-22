@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/x0y14/pm1/command"
 	"github.com/x0y14/pm1/password"
 )
 
@@ -102,7 +103,7 @@ var WaitingForToFinishEnteringMasterPasswordForDecrypt = View{
 		m.masterPasswordInput.Reset()
 		m.masterPasswordInput.Blur()
 		m.storage = storage
-		m.MainView = Success
+		m.MainView = nextView(m)
 		return m
 	},
 	Render: func(m Model) string {
@@ -190,7 +191,7 @@ var CreatingNewStorageAndVault2 = View{
 			// 終了
 			tea.Quit()
 		}
-		m.MainView = Success
+		m.MainView = nextView(m)
 		return m
 	},
 	Render: func(m Model) string {
@@ -198,11 +199,34 @@ var CreatingNewStorageAndVault2 = View{
 	},
 }
 
+func nextView(m Model) View {
+	switch m.cmd.Mode {
+	case command.MVault:
+		switch m.cmd.VaultOpt.Subcommand {
+		case "list":
+			return vaultListView(m.storage)
+		}
+	}
+	return Success
+}
+
 var Success = View{
 	Action: func(m Model) Model {
 		return m
 	},
 	Render: func(m Model) string {
-		return fmt.Sprintf("successful loading")
+		return fmt.Sprintf("succeeded in loading storage.")
 	},
+}
+
+func ErrorView(err error) View {
+	return View{
+		Action: func(m Model) Model {
+			tea.Quit()
+			return m
+		},
+		Render: func(m Model) string {
+			return fmt.Sprintf("error: %v", err)
+		},
+	}
 }
