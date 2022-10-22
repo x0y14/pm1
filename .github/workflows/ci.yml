@@ -13,4 +13,4 @@ jobs:
 
       - name: Test
         run: |
-          go test -v -short ../../password
+          go test -v -short ./...
